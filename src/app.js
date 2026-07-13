@@ -17,6 +17,10 @@ import schoolsRoutes from "./features/schools/schools.routes.js"
 import settingsRoutes from "./features/settings/settings.routes.js"
 import studentsRoutes from "./features/students/students.routes.js"
 import subjectsRoutes from "./features/subjects/subjects.routes.js"
+import subscriptionsRoutes from "./features/subscriptions/subscriptions.routes.js"
+import systemRoutes from "./features/system/system.routes.js"
+import seedRoutes from "./features/seed.routes.js"
+import uploadsRoutes from "./features/uploads.routes.js"
 
 const app = express();
 
@@ -40,6 +44,10 @@ app.use("/api/schools",schoolsRoutes)
 app.use("/api/settings",settingsRoutes)
 app.use("/api/students",studentsRoutes)
 app.use("/api/subjects",subjectsRoutes)
+app.use("/api/subscriptions",subscriptionsRoutes)
+app.use("/api/system",systemRoutes)
+app.use("/api/seed",seedRoutes)
+app.use("/api/uploads",uploadsRoutes)
 
 app.get("/", (req, res) => {
     res.json({

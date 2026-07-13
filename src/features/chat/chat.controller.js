@@ -1,4 +1,4 @@
-import * as chatService from "./service/index.js";
+import * as chatService from "./services/index.js";
 
 export async function getContacts(req, res, next) {
     try {

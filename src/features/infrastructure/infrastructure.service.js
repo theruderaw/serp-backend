@@ -1,4 +1,4 @@
-import pool from "../backend/src/config/db.js";
+import pool from "../../config/db.js";
 
 async function getTransportVehicles(schoolId) {
     const { rows } = await pool.query(

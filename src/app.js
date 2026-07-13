@@ -16,6 +16,7 @@ import remindersRoutes from "./features/reminders/reminders.routes.js"
 import schoolsRoutes from "./features/schools/schools.routes.js"
 import settingsRoutes from "./features/settings/settings.routes.js"
 import studentsRoutes from "./features/students/students.routes.js"
+import subjectsRoutes from "./features/subjects/subjects.routes.js"
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/api/reminders",employeesRoutes)
 app.use("/api/schools",schoolsRoutes)
 app.use("/api/settings",settingsRoutes)
 app.use("/api/students",studentsRoutes)
+app.use("/api/subjects",subjectsRoutes)
 
 app.get("/", (req, res) => {
     res.json({

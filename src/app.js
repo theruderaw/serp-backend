@@ -10,6 +10,9 @@ import dashboardRoutes from "./features/dashboard/dashboard.routes.js"
 import draftsRoutes from "./features/drafts/drafts.routes.js"
 import employeesRoutes from "./features/employees/employees.routes.js"
 import financeRoutes from "./features/finance/finance.routes.js"
+import infrastructureRoutes from "./features/infrastructure/infrastructure.routes.js"
+import registrationsRoutes from "./features/registrations/registrations.routes.js"
+import remindersRoutes from "./features/reminders/reminders.routes.js"
 
 const app = express();
 
@@ -26,6 +29,9 @@ app.use("/api/dashboard",dashboardRoutes)
 app.use("/api/drafts",draftsRoutes)
 app.use("/api/employees",employeesRoutes)
 app.use("/api/finance",financeRoutes)
+app.use("/api/infrastructure",infrastructureRoutes)
+app.use("/api/registrations",registrationsRoutes)
+app.use("/api/reminders",employeesRoutes)
 
 app.get("/", (req, res) => {
     res.json({

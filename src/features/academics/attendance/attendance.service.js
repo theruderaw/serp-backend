@@ -1,4 +1,4 @@
-import pool from "../../config/db.js";
+import pool from "../../../config/db.js";
 
 async function getAttendanceSettings(schoolId) {
     const { rows } = await pool.query(

@@ -1,7 +1,7 @@
 import express from "express";
 
-import auth from "../../middleware/auth.js";
-import { validate } from "../../middleware/validate.js";
+import auth from "../../../middleware/auth.js";
+import { validate } from "../../../middleware/validate.js";
 
 import * as attendanceController from "./attendance.controller.js";
 

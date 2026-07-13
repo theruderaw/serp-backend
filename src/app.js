@@ -9,6 +9,7 @@ import chatRoutes from "./features/chat/chat.routes.js"
 import dashboardRoutes from "./features/dashboard/dashboard.routes.js"
 import draftsRoutes from "./features/drafts/drafts.routes.js"
 import employeesRoutes from "./features/employees/employees.routes.js"
+import financeRoutes from "./features/finance/finance.routes.js"
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/communication",communicationRoutes)
 app.use("/api/dashboard",dashboardRoutes)
 app.use("/api/drafts",draftsRoutes)
 app.use("/api/employees",employeesRoutes)
+app.use("/api/finance",financeRoutes)
 
 app.get("/", (req, res) => {
     res.json({

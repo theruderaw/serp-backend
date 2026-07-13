@@ -1,6 +1,6 @@
 import express from "express";
-import auth from "../backend/src/middleware/auth.js";
-import { validate } from "../backend/src/middleware/validate.js";
+import auth from "../../middleware/auth.js";
+import { validate } from "../../middleware/validate.js";
 
 import * as infrastructureController from "./infrastructure.controller.js";
 

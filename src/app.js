@@ -13,6 +13,9 @@ import financeRoutes from "./features/finance/finance.routes.js"
 import infrastructureRoutes from "./features/infrastructure/infrastructure.routes.js"
 import registrationsRoutes from "./features/registrations/registrations.routes.js"
 import remindersRoutes from "./features/reminders/reminders.routes.js"
+import schoolsRoutes from "./features/schools/schools.routes.js"
+import settingsRoutes from "./features/settings/settings.routes.js"
+import studentsRoutes from "./features/students/students.routes.js"
 
 const app = express();
 
@@ -32,6 +35,9 @@ app.use("/api/finance",financeRoutes)
 app.use("/api/infrastructure",infrastructureRoutes)
 app.use("/api/registrations",registrationsRoutes)
 app.use("/api/reminders",employeesRoutes)
+app.use("/api/schools",schoolsRoutes)
+app.use("/api/settings",settingsRoutes)
+app.use("/api/students",studentsRoutes)
 
 app.get("/", (req, res) => {
     res.json({

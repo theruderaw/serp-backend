@@ -27,3 +27,7 @@ export const deleteSettingParamsSchema = z.object({
     schoolId: z.string().min(1),
     key: z.string().min(1)
 });
+
+export const schoolDetailsParamsSchema = z.object({
+    schoolId: z.string().uuid(),
+});

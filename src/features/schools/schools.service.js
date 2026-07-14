@@ -14,10 +14,10 @@ async function getSchools() {
             GROUP BY schoolid
         ) st ON st.schoolid = s.id
         LEFT JOIN (
-            SELECT schoolid, COUNT(*) AS cnt
+            SELECT school_id, COUNT(*) AS cnt
             FROM employees
-            GROUP BY schoolid
-        ) em ON em.schoolid = s.id
+            GROUP BY school_id
+        ) em ON em.school_id = s.id
         LEFT JOIN (
             SELECT schoolid, COUNT(*) AS cnt
             FROM classes
@@ -35,7 +35,7 @@ async function getSchool(id) {
         SELECT *
         FROM schools
         WHERE id = $1
-        `,
+        `,  
         [id]
     );
 

@@ -2,19 +2,20 @@
 import pool from "../../config/db.js";
 
 
-export async function loginUser({ email, name, password, schoolId }) {
+import bcrypt from "bcrypt";
 
+export async function loginUser({ email, name, password, schoolId }) {
     const conditions = [];
     const params = [];
 
     if (email) {
         params.push(email);
-        conditions.push(`email = $${params.length}`);
+        conditions.push(`u.email = $${params.length}`);
     }
 
     if (name) {
         params.push(name);
-        conditions.push(`name = $${params.length}`);
+        conditions.push(`u.name = $${params.length}`);
     }
 
     if (conditions.length === 0) {
@@ -22,48 +23,60 @@ export async function loginUser({ email, name, password, schoolId }) {
     }
 
     let query = `
-        SELECT *
-        FROM users
+        SELECT
+            u.*,
+            r.name AS role_name,
+            r.permissions
+        FROM users u
+        JOIN roles r
+            ON r.id = u.role_id
         WHERE (${conditions.join(" OR ")})
+          AND u.is_active = TRUE
     `;
-
 
     if (schoolId) {
         params.push(schoolId);
 
         query += `
-            AND (tenantid = $${params.length} OR role = 'super_admin')
+            AND (
+                u.school_id = $${params.length}
+                OR r.name = 'super_admin'
+            )
         `;
     }
 
-
-    const result = await pool.query(query, params);
-
-    const user = result.rows[0];
-
+    const { rows } = await pool.query(query, params);
+    const user = rows[0];
 
     if (!user) {
         return null;
     }
 
-
-    // Replace with bcrypt later
-    if (user.password !== password) {
+    if (!user.password) {
         return null;
     }
 
+    const validPassword = await bcrypt.compare(password, user.password);
 
-    if (user.tenantid && user.role !== "super_admin") {
-        await pool.query(
-            "SELECT status FROM schools WHERE id = $1",
-            [user.tenantid]
-        );
+    if (!validPassword) {
+        return null;
     }
 
+    if (user.school_id && user.role_name !== "super_admin") {
+        const { rows: schoolRows } = await pool.query(
+            `SELECT status FROM schools WHERE id = $1`,
+            [user.school_id]
+        );
+
+        if (!schoolRows.length || schoolRows[0].status !== "active") {
+            return null;
+        }
+    }
+
+    delete user.password;
 
     return user;
 }
-
 
 
 export async function getUserProfile(userId) {

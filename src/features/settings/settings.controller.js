@@ -1,4 +1,5 @@
 import * as settingsService from "./settings.service.js";
+import { schoolDetailsParamsSchema } from "./settings.schemas.js";
 
 
 export async function getSettings(req, res, next) {
@@ -58,6 +59,25 @@ export async function deleteSetting(req, res, next) {
 
         res.json(data);
 
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getSchoolDetails(req, res, next) {
+    try {
+
+        const data = await settingsService.getSchoolDetails(
+            req.params.schoolId
+        );
+
+        if (!data) {
+            return res.status(404).json({
+                message: 'School not found',
+            });
+        }
+
+        return res.json(data);
     } catch (error) {
         next(error);
     }

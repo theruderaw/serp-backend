@@ -4,9 +4,9 @@ import pool from "../../config/db.js";
 export async function getSettings(schoolId) {
     const { rows } = await pool.query(
         `
-        SELECT settingKey, settingValue
+        SELECT setting_key, setting_value
         FROM school_settings
-        WHERE schoolId = $1
+        WHERE school_id = $1
         `,
         [schoolId]
     );
@@ -15,12 +15,12 @@ export async function getSettings(schoolId) {
 
     rows.forEach((setting) => {
         try {
-            settings[setting.settingkey] =
-                typeof setting.settingvalue === "string"
-                    ? JSON.parse(setting.settingvalue)
-                    : setting.settingvalue;
+            settings[setting.setting_key] =
+                typeof setting.setting_value === "string"
+                    ? JSON.parse(setting.setting_value)
+                    : setting.setting_value;
         } catch {
-            settings[setting.settingkey] = setting.settingvalue;
+            settings[setting.setting_key] = setting.setting_value;
         }
     });
 
@@ -31,10 +31,10 @@ export async function getSettings(schoolId) {
 export async function getSetting(schoolId, key) {
     const { rows } = await pool.query(
         `
-        SELECT settingValue
+        SELECT setting_value
         FROM school_settings
-        WHERE schoolId = $1
-        AND settingKey = $2
+        WHERE school_id = $1
+        AND setting_key = $2
         `,
         [
             schoolId,
@@ -50,7 +50,7 @@ export async function getSetting(schoolId, key) {
     }
 
 
-    let value = rows[0].settingvalue;
+    let value = rows[0].setting_value;
 
     try {
         value =
@@ -79,9 +79,9 @@ export async function saveSetting(schoolId, key, value) {
             `
             INSERT INTO school_settings
             (
-                schoolId,
-                settingKey,
-                settingValue
+                school_id,
+                setting_key,
+                setting_value
             )
             VALUES
             (
@@ -89,10 +89,10 @@ export async function saveSetting(schoolId, key, value) {
                 $2,
                 $3
             )
-            ON CONFLICT (schoolId, settingKey)
+            ON CONFLICT (school_id, setting_key)
             DO UPDATE SET
-                settingValue = EXCLUDED.settingValue,
-                updatedAt = CURRENT_TIMESTAMP
+                setting_value = EXCLUDED.setting_value,
+                updated_at = CURRENT_TIMESTAMP
             `,
             [
                 schoolId,
@@ -164,8 +164,8 @@ export async function deleteSetting(schoolId, key) {
     await pool.query(
         `
         DELETE FROM school_settings
-        WHERE schoolId = $1
-        AND settingKey = $2
+        WHERE school_id = $1
+        AND setting_key = $2
         `,
         [
             schoolId,
@@ -176,5 +176,50 @@ export async function deleteSetting(schoolId, key) {
 
     return {
         message: "Setting deleted"
+    };
+}
+
+export async function getSchoolDetails(schoolId) {
+    const schoolSql = `
+        SELECT
+            id,
+            name,
+            logo,
+            login_background
+        FROM schools
+        WHERE id = $1;
+    `;
+
+    const settingsSql = `
+        SELECT
+            setting_key,
+            setting_value
+        FROM school_settings
+        WHERE school_id = $1;
+    `;
+
+    const [{ rows: schoolRows }, { rows: settingRows }] = await Promise.all([
+        pool.query(schoolSql, [schoolId]),
+        pool.query(settingsSql, [schoolId]),
+    ]);
+
+    if (!schoolRows.length) {
+        return null;
+    }
+
+    const school = schoolRows[0];
+
+    const settings = {};
+
+    for (const row of settingRows) {
+        settings[row.setting_key] = row.setting_value;
+    }
+
+    return {
+        schoolName: school.name,
+        logo: school.logo,
+        loginBg: school.login_background,
+        loginShowLogo: settings.login_show_logo !== false,
+        loginShowName: settings.login_show_name !== false,
     };
 }

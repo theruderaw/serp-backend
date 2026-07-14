@@ -24,7 +24,6 @@ const router = express.Router();
 
 router.get(
     "/",
-    auth,
     validate({
         query: getSchoolsQuerySchema,
     }),

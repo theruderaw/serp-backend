@@ -64,7 +64,7 @@ async function getGlobalStats() {
             (SELECT COUNT(*) FROM schools) AS totalSchools,
             (SELECT COUNT(*) FROM schools WHERE status = 'active') AS activeSchools,
             (SELECT COUNT(*) FROM students WHERE status != 'archived') AS totalStudents,
-            (SELECT COUNT(*) FROM employees WHERE status != 'archived') AS totalEmployees
+            (SELECT COUNT(*) FROM employees WHERE status != 'Terminated') AS totalEmployees
         `
     );
 

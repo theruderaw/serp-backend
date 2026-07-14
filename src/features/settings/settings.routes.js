@@ -9,7 +9,8 @@ import {
     getSettingParamsSchema,
     saveSettingParamsSchema,
     saveSettingBodySchema,
-    deleteSettingParamsSchema
+    deleteSettingParamsSchema,
+    schoolDetailsParamsSchema
 } from "./settings.schemas.js";
 
 
@@ -24,6 +25,16 @@ router.get(
     }),
     settingsController.getSettings
 );
+
+router.get(
+    '/:schoolId/school_details',
+    // auth,
+    validate({
+        params: schoolDetailsParamsSchema
+    }),
+    settingsController.getSchoolDetails
+);
+
 
 
 router.get(
@@ -47,6 +58,7 @@ router.put(
 );
 
 
+
 router.delete(
     "/:schoolId/:key",
     auth,
@@ -55,6 +67,5 @@ router.delete(
     }),
     settingsController.deleteSetting
 );
-
 
 export default router;

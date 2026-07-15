@@ -12,27 +12,32 @@ export const updateSettingsParamsSchema = z.object({
     schoolId: z.string().min(1)
 });
 
+
 export const updateSettingsBodySchema = z.object({
     billingMode: z.string().optional(),
+
     perStudentPrice: z.number().optional(),
     yearlyPerStudentPrice: z.number().optional(),
+
     monthlyAmount: z.number().optional(),
     yearlyAmount: z.number().optional(),
+
     discountAmount: z.number().optional(),
-    discountText: z.string().optional(),
+    discountText: z.string().nullable().optional(),
+
     gstPercentage: z.number().optional(),
 
-    validUntil: z.string().optional(),
-    validityRemark: z.string().optional(),
+    validUntil: z.string().nullable().optional(),
+    validityRemark: z.string().nullable().optional(),
 
-    upiId: z.string().optional(),
-    bankName: z.string().optional(),
-    bankAccountNo: z.string().optional(),
-    bankIfsc: z.string().optional(),
-    bankBranch: z.string().optional(),
-    bankDetails: z.string().optional(),
+    upiId: z.string().nullable().optional(),
+    bankName: z.string().nullable().optional(),
+    bankAccountNo: z.string().nullable().optional(),
+    bankIfsc: z.string().nullable().optional(),
+    bankBranch: z.string().nullable().optional(),
+    bankDetails: z.string().nullable().optional(),
 
-    qrCodeUrl: z.string().optional()
+    qrCodeUrl: z.string().nullable().optional()
 });
 
 
@@ -46,9 +51,11 @@ export const getPaymentsParamsSchema = z.object({
 export const createPaymentBodySchema = z.object({
     schoolId: z.string().min(1),
     amount: z.number(),
+
     paymentMode: z.string().min(1),
-    receiptUrl: z.string().optional(),
-    schoolRemark: z.string().optional()
+
+    receiptUrl: z.string().nullable().optional(),
+    schoolRemark: z.string().nullable().optional()
 });
 
 
@@ -57,8 +64,9 @@ export const verifyPaymentParamsSchema = z.object({
     id: z.string().min(1)
 });
 
+
 export const verifyPaymentBodySchema = z.object({
     status: z.string().min(1),
-    validUntil: z.string().optional(),
-    remark: z.string().optional()
+    validUntil: z.string().nullable().optional(),
+    remark: z.string().nullable().optional()
 });

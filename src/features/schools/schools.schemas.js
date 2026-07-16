@@ -22,9 +22,10 @@ export const createSchoolBodySchema = z.object({
     address: z.string().optional(),
     phone: z.string().optional(),
     principal: z.string().optional(),
-    established: z.string().optional(),
+    established: z.number().optional(),
     website: z.string().optional(),
     academicYear: z.string().optional(),
+    expiresAt: z.string().optional() // 👈 Fixed missing () execution here
 });
 
 export const getSchoolModulesParamsSchema = z.object({
@@ -58,7 +59,7 @@ export const updateSchoolBodySchema = z.object({
     logo: z.string().optional(),
     contactEmail: z.string().email(),
     principal: z.string().optional(),
-    established: z.string().optional(),
+    established: z.number().optional(),
     address: z.string().optional(),
     phone: z.string().optional(),
     website: z.string().optional(),
@@ -66,6 +67,7 @@ export const updateSchoolBodySchema = z.object({
     workingDays: z.array(z.string()).optional(),
     loginBackground: z.string().optional(),
     plan: z.string().optional(),
+    expiresAt: z.string().optional()
 });
 
 export const resetAdminPasswordParamsSchema = z.object({

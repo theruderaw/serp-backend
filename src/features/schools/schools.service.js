@@ -212,24 +212,25 @@ async function createSchool(body) {
                 name,
                 slug,
                 logo,
-                contactemail,
+                contact_email,
                 status,
                 plan,
-                studentcount,
-                employeecount,
+                student_count,
+                employee_count,
                 theme,
-                joineddate,
+                joined_date,
                 address,
                 phone,
                 principal,
                 established,
                 website,
-                academicyear
+                academic_year,
+                expires_at
             )
             VALUES
             (
                 $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
-                $11,$12,$13,$14,$15,$16,$17
+                $11,$12,$13,$14,$15,$16,$17,$18
             )
             `,
             [
@@ -250,6 +251,7 @@ async function createSchool(body) {
                 body.established ?? null,
                 body.website ?? null,
                 body.academicYear ?? null,
+                body.expires_at ?? null
             ]
         );
 
@@ -390,17 +392,18 @@ async function updateSchool(id, body) {
             name = $1,
             slug = $2,
             logo = $3,
-            contactemail = $4,
+            contact_email = $4,
             principal = $5,
             established = $6,
             address = $7,
             phone = $8,
             website = $9,
-            academicyear = $10,
-            workingdays = $11,
-            loginbackground = $12,
-            plan = $13
-        WHERE id = $14
+            academic_year = $10,
+            working_days = $11,
+            login_background = $12,
+            plan = $13,
+            expires_at = $14
+        WHERE id = $15
         `,
         [
             body.name,
@@ -416,6 +419,7 @@ async function updateSchool(id, body) {
             JSON.stringify(body.workingDays || []),
             body.loginBackground,
             body.plan || "basic",
+            body.expiresAt ?? null,
             id,
         ]
     );

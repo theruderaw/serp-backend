@@ -18,6 +18,11 @@ import {
     updateSchoolParamsSchema,
     updateSchoolBodySchema,
     resetAdminPasswordParamsSchema,
+    resetAdminPasswordBodySchema,
+    updateCompanyBodySchema,
+    updateCompanyParamsSchema,
+    updatePlanBodySchema,
+    updatePlanParamsSchema,
 } from "./schools.schemas.js";
 
 const router = express.Router();
@@ -110,8 +115,29 @@ router.post(
     auth,
     validate({
         params: resetAdminPasswordParamsSchema,
+        body: resetAdminPasswordBodySchema,
     }),
     schoolsController.resetAdminPassword
+);
+
+router.put(
+    "/:id/company",
+    auth,
+    validate({
+        params: updateCompanyParamsSchema,
+        body: updateCompanyBodySchema,
+    }),
+    schoolsController.updateCompany
+);
+
+router.put(
+    "/:id/plan",
+    auth,
+    validate({
+        params: updatePlanParamsSchema,
+        body: updatePlanBodySchema,
+    }),
+    schoolsController.updatePlan
 );
 
 export default router;

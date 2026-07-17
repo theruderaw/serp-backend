@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import pool from "../../config/db.js";
 
 async function getSchools() {
@@ -47,10 +48,10 @@ async function getSchool(id) {
 
     const { rows: modules } = await pool.query(
         `
-        SELECT moduleid
+        SELECT module_id
         FROM school_modules
-        WHERE schoolid = $1
-        AND status = 'active'
+        WHERE school_id = $1
+        AND is_active
         `,
         [id]
     );
@@ -81,10 +82,10 @@ async function getSchool(id) {
         try {
             const { rows: settings } = await pool.query(
                 `
-                SELECT settingvalue
+                SELECT setting_value
                 FROM school_settings
-                WHERE schoolid = $1
-                AND settingkey = 'school_details'
+                WHERE school_id = $1
+                AND setting_key = 'school_details'
                 `,
                 [id]
             );
@@ -429,24 +430,33 @@ async function updateSchool(id, body) {
     };
 }
 
-async function resetAdminPassword(schoolId) {
+
+async function resetAdminPassword(schoolId, newPassword) {
     const { rows } = await pool.query(
         `
-        SELECT id
-        FROM users
-        WHERE tenantid = $1
-        AND role = 'school_admin'
+        SELECT u.id
+        FROM users u
+        JOIN roles r
+        ON u.role_id = r.id
+        WHERE u.school_id = $1
+        AND r.name = 'school_admin'
         LIMIT 1
         `,
         [schoolId]
     );
 
     if (!rows.length) {
-        throw new Error("School admin not found for this school");
+        throw new Error(
+            "School admin not found for this school"
+        );
     }
 
     const adminId = rows[0].id;
-    const defaultPassword = "admin123";
+
+    const hashedPassword = await bcrypt.hash(
+        newPassword,
+        10
+    );
 
     await pool.query(
         `
@@ -454,13 +464,50 @@ async function resetAdminPassword(schoolId) {
         SET password = $1
         WHERE id = $2
         `,
-        [defaultPassword, adminId]
+        [hashedPassword, adminId]
     );
 
     return {
-        message: "admin password reset to admin123",
-        defaultPassword,
+        message: "Admin password reset successfully",
     };
+
+}
+
+export async function updateCompany(id, body) {
+    const { rows } = await pool.query(
+        `
+        UPDATE schools
+        SET
+            name = $1,
+            logo = $2,
+            updated_at = NOW()
+        WHERE id = $3
+        RETURNING *
+        `,
+        [body.name, body.logo, id]
+    );
+
+    return rows[0];
+}
+
+export async function updatePlan(id, plan) {
+    const { rows } = await pool.query(
+        `
+        UPDATE schools
+        SET
+            plan = $1,
+            updated_at = NOW()
+        WHERE id = $2
+        RETURNING *
+        `,
+        [plan, id]
+    );
+
+    if (!rows.length) {
+        throw new Error("School not found");
+    }
+
+    return rows[0];
 }
 
 export default {
@@ -474,4 +521,6 @@ export default {
     updateSchoolStatus,
     updateSchool,
     resetAdminPassword,
+    updateCompany,
+    updatePlan
 };

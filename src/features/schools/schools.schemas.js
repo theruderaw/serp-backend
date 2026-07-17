@@ -73,3 +73,31 @@ export const updateSchoolBodySchema = z.object({
 export const resetAdminPasswordParamsSchema = z.object({
     id: z.string().min(1),
 });
+
+export const resetAdminPasswordBodySchema = z.object({
+    newPassword: z
+        .string()
+        .min(8, "Password must be at least 8 characters")
+        .max(128),
+});
+
+export const updateCompanyParamsSchema = z.object({
+    id: z.string().min(1),
+});
+
+export const updateCompanyBodySchema = z.object({
+    name: z.string().min(1),
+    logo: z.string().optional()
+})
+
+export const updatePlanParamsSchema = z.object({
+    id: z.string().uuid(),
+});
+
+export const updatePlanBodySchema = z.object({
+    plan: z.enum([
+        "basic",
+        "pro",
+        "enterprise",
+    ]),
+});

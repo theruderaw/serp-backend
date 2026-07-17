@@ -98,9 +98,48 @@ export async function updateSchool(req, res, next) {
 
 export async function resetAdminPassword(req, res, next) {
     try {
-        const data = await schoolsService.resetAdminPassword(
-            req.params.id
-        );
+        const { newPassword } = req.body;
+
+        if (!newPassword) {
+            return res.status(400).json({
+                message: "newPassword is required",
+            });
+        }
+
+        const data =
+            await schoolsService.resetAdminPassword(
+                req.params.id,
+                newPassword
+            );
+
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function updateCompany(req, res, next) {
+    try {
+        const data =
+            await schoolsService.updateCompany(
+                req.params.id,
+                req.body
+            );
+
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
+}
+
+export async function updatePlan(req, res, next) {
+    try {
+        const data =
+            await schoolsService.updatePlan(
+                req.params.id,
+                req.body.plan
+            );
+
         res.json(data);
     } catch (err) {
         next(err);

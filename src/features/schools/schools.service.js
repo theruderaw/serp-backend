@@ -36,7 +36,7 @@ async function getSchool(id) {
         SELECT *
         FROM schools
         WHERE id = $1
-        `,  
+        `,
         [id]
     );
 
@@ -46,6 +46,11 @@ async function getSchool(id) {
 
     const school = rows[0];
 
+    // NOTE: not verified against \d school_modules — kept as-is.
+    // Other functions in this file (getSchoolModules, toggleSchoolModule,
+    // getSchoolBySlug) use column names schoolid/moduleid/status, while this
+    // query uses school_id/module_id/is_active. These can't both be right —
+    // run \d school_modules and I'll reconcile all four call sites.
     const { rows: modules } = await pool.query(
         `
         SELECT module_id
@@ -168,17 +173,21 @@ async function getSchoolBySlug(slug) {
 }
 
 async function getSchoolUsers(schoolId) {
+    // Fixed: users has school_id/role_id/is_active, not tenantid/role/status.
+    // role is a FK to roles.id, so we join to get the role name.
     const { rows } = await pool.query(
         `
         SELECT
-            id,
-            name,
-            role,
-            avatar
-        FROM users
-        WHERE tenantid = $1
-        AND role != 'super_admin'
-        AND status = 'active'
+            u.id,
+            u.name,
+            r.name AS role,
+            u.avatar
+        FROM users u
+        LEFT JOIN roles r
+            ON r.id = u.role_id
+        WHERE u.school_id = $1
+        AND (r.name IS NULL OR r.name != 'super_admin')
+        AND u.is_active = true
         `,
         [schoolId]
     );
@@ -203,7 +212,7 @@ async function createSchool(body) {
         const adminUsername =
             "admin@" + body.name.toLowerCase().replace(/\s+/g, "");
 
-        const adminPassword = "admin123";
+        const adminPassword = "admin123"; // returned to caller for display, never stored raw
 
         await client.query(
             `
@@ -256,35 +265,59 @@ async function createSchool(body) {
             ]
         );
 
-        const adminId = `admin-${id}`;
+        // Look up the school_admin role.
+        // ASSUMPTION: school_admin is a global/system role shared across all
+        // schools (school_id IS NULL). If roles are per-school instead, this
+        // needs to INSERT a new role scoped to `id` here rather than SELECT
+        // a global one — let me know which it is and I'll adjust.
+        const { rows: roleRows } = await client.query(
+            `
+            SELECT id
+            FROM roles
+            WHERE name = 'school_admin'
+            AND school_id IS NULL
+            `
+        );
 
-        await client.query(
+        if (!roleRows.length) {
+            throw new Error(
+                "school_admin role not found — seed roles before creating a school"
+            );
+        }
+
+        const roleId = roleRows[0].id;
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+        const { rows: adminRows } = await client.query(
             `
             INSERT INTO users
             (
-                id,
+                school_id,
+                role_id,
                 name,
                 email,
                 password,
-                role,
-                tenantid,
-                status
+                avatar,
+                is_active
             )
             VALUES
             (
                 $1,$2,$3,$4,$5,$6,$7
             )
+            RETURNING id
             `,
             [
-                adminId,
+                id,
+                roleId,
                 "School Principal",
                 adminUsername,
-                adminPassword,
-                "school_admin",
-                id,
-                "active",
+                hashedPassword,
+                null,
+                true,
             ]
         );
+
+        const adminId = adminRows[0].id;
 
         const { rows: modules } = await client.query(`
             SELECT id
@@ -316,8 +349,9 @@ async function createSchool(body) {
             id,
             slug,
             ...body,
+            adminId,
             adminUsername,
-            adminPassword,
+            adminPassword, // plaintext, returned once for display only
         };
     } catch (err) {
         await client.query("ROLLBACK");
@@ -386,6 +420,9 @@ async function updateSchoolStatus(id, status) {
 }
 
 async function updateSchool(id, body) {
+    // NOTE: not verified against \d schools — column names left as-is
+    // (e.g. working_days here vs school.workingdays read in getSchool
+    // are inconsistent; run \d schools and I'll fix this too).
     await pool.query(
         `
         UPDATE schools
@@ -430,8 +467,9 @@ async function updateSchool(id, body) {
     };
 }
 
-
 async function resetAdminPassword(schoolId, newPassword) {
+    // Already correct — matches real schema (school_id/role_id on users,
+    // joined to roles).
     const { rows } = await pool.query(
         `
         SELECT u.id
@@ -470,7 +508,6 @@ async function resetAdminPassword(schoolId, newPassword) {
     return {
         message: "Admin password reset successfully",
     };
-
 }
 
 export async function updateCompany(id, body) {

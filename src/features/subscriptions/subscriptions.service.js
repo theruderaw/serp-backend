@@ -229,7 +229,12 @@ async function getPayments(schoolId) {
         `,
         [schoolId]
     );
-
+    console.log(`
+        SELECT *
+        FROM subscription_payments
+        WHERE schoolid = ${schoolId}
+        ORDER BY createdat DESC
+        `)
 
     return rows.map(mapPayment);
 }
